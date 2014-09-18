@@ -7,23 +7,24 @@ class KVStoreTest extends PHPUnit_Framework_TestCase
     public function testCreatingFile()
     {
 
-        $kv = new KVStore();
+        $kv = new KVStore\KVStore();
         $kv->Save();
-        $this->assertTrue(file_exists("kvstore.txt"),"File do not exists");
+        $file = "kvstore_data.json";
+        $this->assertTrue(file_exists($file),"File $file do not exists");
     }
 
 
     public function testPersistence()
     {
-        $kv = new KVStore();
+        $kv = new KVStore\KVStore();
         $kv->setPersistence(true);
         $v = rand(1,100000);
         $kv->set("persistencekey",$v);
-        $kj = new KVStore();
+        $kj = new KVStore\KVStore();
         $y = $kj->get("persistencekey");
         $this->assertEquals($v,$y,"Persistence values are different");
         $kj->Save();
-        $ky = new KVStore();
+        $ky = new KVStore\KVStore();
         $z = $ky->get("persistencekey");
         $this->assertEquals($v,$z,"Persistence values are different after save");
 
@@ -31,7 +32,7 @@ class KVStoreTest extends PHPUnit_Framework_TestCase
 
     public function testGetSet()
     {
-        $kv = new KVStore();
+        $kv = new KVStore\KVStore();
 
         $x = rand(1,100000);        
         $kv->set("persistencekey",$x);        
@@ -41,7 +42,7 @@ class KVStoreTest extends PHPUnit_Framework_TestCase
 
     public function testGetDel()
     {
-        $kv = new KVStore();
+        $kv = new KVStore\KVStore();
         $x = rand(1,100000);        
         $kv->set("testkey",$x);        
         $y = $kv->getDel("testkey");

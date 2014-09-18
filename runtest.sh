@@ -1,2 +1,2 @@
-#!/bin/sh
-phpunit --bootstrap /tests/autoload.php KVStoreTest.php
+#!/bin/bash
+phpunit --bootstrap tests/autoload.php tests/KVStoreTest.php
