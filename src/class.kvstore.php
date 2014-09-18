@@ -1,5 +1,6 @@
 <?php
 
+namespace KVStore;
 
 class KVStore {
 	private $obj;
@@ -19,7 +20,7 @@ class KVStore {
 		return $new;
 	}
 
-	function __construct($file = "kvstore.txt") {
+	function __construct($file = "kvstore_data.json") {
 		$this->obj = array();		
 		$this->tosave = array();
 		$this->kvfile = $file;	
