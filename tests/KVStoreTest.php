@@ -1,9 +1,9 @@
 <?php
 
+
 class KVStoreTest extends PHPUnit_Framework_TestCase
 {
-    // ...
-
+    
     public function testCreatingFile()
     {
 
@@ -28,6 +28,28 @@ class KVStoreTest extends PHPUnit_Framework_TestCase
         $z = $ky->get("persistencekey");
         $this->assertEquals($v,$z,"Persistence values are different after save");
 
+    }
+
+    public function testKeyPatterns() {
+        $kv = new KVStore\KVStore();
+        $kv->drop();
+        $kv->set("a1",1);
+        $kv->set("aa",1);
+        $kv->set("c3",1);
+        $kv->set("x4",1);
+        $kv->set("ybx",1);
+        $kv->set("yb",1);
+        $kv->set("abc",1);
+        $kv->set("abx",1);
+        $kv->set("xbx",1);
+        $kv->set("d:3",1);
+        $kv->set("d:8",1);        
+        $torun = array("a*,4","??,5","???,6","a*,4","ab*,2","c?,1","d:*,2");
+        foreach($torun as $k) {
+            $v = explode(",", $k);
+            $n = count($kv->getKeys($v[0]));
+            $this->assertEquals($n,$v[1],"Key Pattern ".$v[0]." expects ".$v[1]." items, getting ".$n);            
+        }
     }
 
     public function testGetSet()

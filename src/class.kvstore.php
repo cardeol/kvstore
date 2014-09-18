@@ -28,6 +28,31 @@ class KVStore {
 		$this->_readContent();
 	}
 
+	public function drop() {
+		if(is_file($this->kvfile) && file_exists($this->kvfile)) @unlink($this->kvfile);		
+		$this->obj = array();		
+		return true;
+	}
+
+
+	private function glob2regex($exp)
+	{
+	    $out = "^";
+	    for($i=0; $i<strlen($exp); $i++)
+	    {
+	        $c = $exp{$i};
+	        switch($c)
+	        {
+		        case '*': $out .= ".*"; break;
+		        case '?': $out .= '.'; break;
+		        case '.': $out .= "\\."; break;
+		        case '\\': $out .= "\\\\"; break;
+		        default: $out .= $c;
+	        }
+	    }
+	    $out .= '$';
+	    return '/'.$out.'/';
+	}
 	
 	private function _saveContent() {
 		$output = json_encode($this->obj);
@@ -36,7 +61,7 @@ class KVStore {
 
 
 	private function _readContent() {
-		if(file_exists($this->kvfile)) {
+		if(file_exists($this->kvfile) && is_file($this->kvfile)) {
 			$c = file_get_contents($this->kvfile);
 			$j = json_decode($c);
 			$this->obj = $this->object_to_array($j);
@@ -48,11 +73,19 @@ class KVStore {
 	}
 
 	public function getData() {
+		if($this->ispersistent) {
+			$this->_readContent();
+		}
 		return $this->obj;
 	}
 
-	public function getKeys() {
-		return array_keys($this->obj);
+	public function getKeys($pattern = null) {
+		if($this->ispersistent) {
+			$this->_readContent();
+		}
+		$result = array_keys($this->obj);
+		if($pattern!=null) $result = preg_grep($this->glob2regex($pattern),$result);
+		return $result;
 	}
 
 	public function setPersistence($v) {
@@ -60,15 +93,18 @@ class KVStore {
 	}
 
 	public function keyexists($key) {
+		if($this->ispersistent) {
+			$this->_readContent();
+		}
 		return isset($this->obj[$key]);
 	}
 	
-	public function get($key) {
+	public function get($key) {		
 		if($this->keyexists($key)) return $this->obj[$key];
 		return "";
 	}
 
-	public function getDel($key) {
+	public function getDel($key) {		
 		if($this->keyexists($key)) {
 			$v = $this->obj[$key];
 			unset($this->obj[$key]);
@@ -80,6 +116,9 @@ class KVStore {
 	}
 
 	public function set($key,$value) {
+		if($this->ispersistent) {
+			$this->_readContent();
+		}
 		if($key=="" || $key==null) return false;
 		if(isset($this->obj[$key])) {
 			if($this->obj[$key]==$value) return true;
